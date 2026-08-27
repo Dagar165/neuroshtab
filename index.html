@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Нейроштаб · Из лета в лето</title>
+<style>
+:root{
+  --bg:#0b0c0f; --panel:#14161b; --panel2:#1b1e25; --hair:#282c36;
+  --ink:#f1efe9; --dim:#9296a1; --dim2:#62666f;
+  --sig:#ff6a2b; --sig-bg:rgba(255,106,43,.11);
+  --bad:#e5484d; --good:#3dd68c;
+  --mono:"Cascadia Mono",Consolas,"DejaVu Sans Mono",ui-monospace,monospace;
+  --ui:system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --e:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);
+  font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  padding-bottom:96px;overflow-x:hidden}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.03em;line-height:1.08}
+h1{font-size:30px}
+h2{font-size:21px;letter-spacing:-.02em}
+h3{font-size:17px;letter-spacing:-.01em;line-height:1.25}
+p{margin:0}
+.wrap{max-width:600px;margin:0 auto;padding:0 16px}
+.sig{color:var(--sig)}
+.kick{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--sig);margin-bottom:10px}
+.lead{color:var(--dim);font-size:16px;margin-top:13px}
+.note{color:var(--dim2);font-size:13.5px;margin-top:11px;line-height:1.45}
+
+/* ---- шапка ---- */
+.top{position:sticky;top:0;z-index:40;background:rgba(11,12,15,.94);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--hair)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0 8px}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--sig);flex:0 0 7px;animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,106,43,.45)}70%{box-shadow:0 0 0 9px rgba(255,106,43,0)}100%{box-shadow:0 0 0 0 rgba(255,106,43,0)}}
+.brand b{display:block;font-size:13px;letter-spacing:.18em;font-weight:800}
+.brand small{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.17em;color:var(--dim2);text-transform:uppercase}
+.hostbtn{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  background:none;border:1px solid var(--hair);color:var(--dim2);padding:8px 10px;cursor:pointer;
+  border-radius:2px;flex:0 0 auto}
+.hostbtn.on{background:var(--sig);border-color:var(--sig);color:#0b0c0f;font-weight:700}
+.rail{height:2px;background:var(--hair);position:relative}
+.rail i{position:absolute;left:0;top:0;bottom:0;background:var(--sig);transition:width .45s var(--e)}
+.meta{display:flex;gap:12px;padding:7px 0 9px;font-family:var(--mono);font-size:9px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--dim2);flex-wrap:wrap}
+.meta b{color:var(--ink);font-weight:600}
+
+.host{display:none;border:1px solid var(--sig);background:var(--sig-bg);margin:12px 0 0;padding:12px 14px}
+.host.show{display:block}
+.host .hh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.host .hh>span{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--sig)}
+.host p{font-size:14.5px;line-height:1.5}
+.timer{display:flex;align-items:center;gap:7px}
+.timer b{font-family:var(--mono);font-size:15px;color:var(--ink)}
+.tbtn{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  background:none;border:1px solid var(--sig);color:var(--sig);padding:6px 9px;cursor:pointer;border-radius:2px}
+
+/* ---- общее ---- */
+section{padding:22px 0 8px;animation:fade .3s var(--e)}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.warn{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--bad);
+  background:rgba(229,72,77,.08);padding:12px 13px;margin-top:18px}
+.warn>span{color:var(--bad);font-weight:800;flex:0 0 auto}
+.warn p{font-size:14.5px;line-height:1.45}
+
+/* ---- миссии ---- */
+.mlist{display:grid;gap:8px;margin-top:14px}
+.mrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+  border:1px solid var(--hair);background:var(--panel);color:var(--ink);
+  padding:14px 13px;font-family:var(--ui);font-size:16px;transition:all .12s linear}
+.mrow.sel{border-color:var(--sig);background:var(--sig-bg)}
+.mrow .num{font-family:var(--mono);font-size:15px;color:var(--dim2);flex:0 0 24px}
+.mrow.sel .num{color:var(--sig)}
+.mrow .txt{min-width:0;flex:1}
+.mrow .txt small{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dim2);margin-bottom:3px}
+.mrow .txt strong{display:block;font-weight:600;font-size:15.5px;line-height:1.25;letter-spacing:-.01em}
+.mrow .tick{flex:0 0 auto;color:var(--sig);opacity:0;font-weight:800}
+.mrow.sel .tick{opacity:1}
+
+/* ---- блок запроса ---- */
+.qbox{border:1px solid var(--sig);background:var(--panel);margin-top:18px}
+.qbox-h{display:flex;justify-content:space-between;gap:10px;padding:11px 13px;border-bottom:1px solid var(--hair);
+  font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--sig)}
+.qbox-h span:last-child{color:var(--dim2)}
+.qtext{padding:15px 14px;font-size:17px;line-height:1.45}
+.qtext.small{font-family:var(--mono);font-size:12.5px;line-height:1.65;color:var(--dim);
+  white-space:pre-wrap;word-wrap:break-word;max-height:300px;overflow:auto}
+.bigcopy{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  background:var(--sig);border:0;color:#0b0c0f;font-family:var(--ui);
+  font-size:17px;font-weight:800;padding:18px 16px;cursor:pointer;letter-spacing:-.01em}
+.bigcopy.done{background:var(--good)}
+.bigcopy:active{filter:brightness(.92)}
+
+/* ---- шаги 1-2-3 ---- */
+.steps{display:grid;gap:7px;margin-top:14px}
+.step{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--hair);
+  background:var(--panel);padding:12px 13px}
+.step b{font-family:var(--mono);font-size:11px;color:var(--sig);flex:0 0 18px;padding-top:2px}
+.step p{font-size:15px;line-height:1.4}
+.step small{display:block;color:var(--dim2);font-size:13px;margin-top:3px}
+
+/* ---- нейросети ---- */
+.svc{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px}
+.svc a{display:flex;flex-direction:column;justify-content:center;gap:2px;border:1px solid var(--hair);
+  background:var(--panel);color:var(--ink);text-decoration:none;padding:13px;min-height:62px}
+.svc a:active{border-color:var(--sig)}
+.svc a small{font-family:var(--mono);font-size:8px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim2)}
+.svc a strong{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.svc .own{border-style:dashed;color:var(--dim)}
+
+/* ---- кнопки ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  background:none;border:1px solid var(--sig);color:var(--sig);font-family:var(--ui);
+  font-size:16px;font-weight:700;padding:15px 18px;cursor:pointer;border-radius:2px}
+.btn.solid{background:var(--sig);color:#0b0c0f}
+.btn:active{filter:brightness(1.15)}
+.linkbtn{background:none;border:0;color:var(--dim2);font-family:var(--ui);font-size:14px;
+  text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:12px 0;width:100%;text-align:left}
+
+/* ---- вопрос / вывод ---- */
+.ask{margin-top:16px;border:1px solid var(--sig);background:var(--sig-bg);padding:15px}
+.ask span{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--sig)}
+.ask strong{display:block;margin-top:7px;font-size:19px;line-height:1.28;font-weight:800;letter-spacing:-.02em}
+.ask p{color:var(--dim);font-size:14.5px;margin-top:9px;line-height:1.45}
+.fallback{border:1px solid var(--hair);background:#0e0f13;padding:14px;margin-top:12px}
+.fallback .tagline{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim2);display:block;margin-bottom:10px;line-height:1.6}
+.fallback ol{margin:0;padding-left:18px;color:var(--dim);font-size:14.5px}
+.fallback li{margin-bottom:6px}
+.stamp{margin-top:13px;border:1px solid var(--bad);color:var(--bad);padding:8px 10px;
+  font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;text-align:center}
+
+/* ---- рычаги ---- */
+.levers{display:grid;gap:8px;margin-top:18px}
+.lev{display:flex;gap:12px;border:1px solid var(--hair);background:var(--panel);padding:14px 13px}
+.lev>span{font-family:var(--mono);font-size:12px;color:var(--sig);flex:0 0 20px}
+.lev p{color:var(--dim);font-size:14.5px;margin-top:4px;line-height:1.45}
+.punch{margin-top:18px;border:1px solid var(--sig);background:var(--sig-bg);padding:15px}
+.punch span{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--sig)}
+.punch strong{display:block;margin-top:6px;font-size:18px;line-height:1.3;letter-spacing:-.02em}
+
+/* ---- конструктор ---- */
+.build{display:grid;gap:9px;margin-top:16px}
+.slot{border:1px solid var(--hair);background:var(--panel)}
+.slot-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 12px 8px}
+.slot-h b{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink);font-weight:600}
+.slot-h i{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;font-style:normal;color:var(--dim2)}
+.opts{display:grid;gap:6px;padding:0 9px 9px}
+.opt{text-align:left;width:100%;cursor:pointer;border:1px solid var(--hair);background:#0e0f13;
+  color:var(--dim);font-family:var(--ui);font-size:15px;line-height:1.38;padding:12px;
+  display:flex;gap:10px;align-items:flex-start;transition:all .12s linear}
+.opt .tier{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+  flex:0 0 42px;padding-top:3px;color:var(--dim2)}
+.opt.on{border-color:var(--sig);background:var(--sig-bg);color:var(--ink)}
+.opt.on .tier{color:var(--sig)}
+.opt.on.t0{border-color:var(--bad);background:rgba(229,72,77,.09)}
+.opt.on.t0 .tier{color:var(--bad)}
+.score{border:1px solid var(--hair);background:var(--panel);padding:14px;margin-top:14px}
+.score-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.score-h b{font-size:18px;letter-spacing:-.02em}
+.score-h i{font-family:var(--mono);font-size:12px;font-style:normal;color:var(--dim2)}
+.bar{height:7px;background:#0e0f13;margin-top:10px;position:relative;border:1px solid var(--hair)}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--sig);transition:width .35s var(--e)}
+
+/* ---- чек-лист ---- */
+.checks{display:grid;gap:7px;margin-top:14px}
+.chk{display:flex;gap:12px;align-items:center;cursor:pointer;border:1px solid var(--hair);
+  background:var(--panel);color:var(--dim);padding:14px 13px;font-size:15px;text-align:left;
+  font-family:var(--ui);width:100%;line-height:1.35}
+.chk i{flex:0 0 19px;height:19px;border:1px solid var(--dim2);display:block;position:relative}
+.chk.on{border-color:var(--sig);color:var(--ink)}
+.chk.on i{background:var(--sig);border-color:var(--sig)}
+.chk.on i::after{content:"";position:absolute;left:6px;top:2px;width:4px;height:10px;
+  border:solid #0b0c0f;border-width:0 2px 2px 0;transform:rotate(43deg)}
+
+/* ---- финал ---- */
+.cycle{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.cyc{flex:1 1 76px;border:1px solid var(--hair);background:var(--panel);padding:11px 8px;text-align:center}
+.cyc span{display:block;font-family:var(--mono);font-size:8.5px;color:var(--sig);margin-bottom:4px}
+.cyc strong{font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.take{display:flex;gap:13px;border:1px solid var(--sig);background:var(--sig-bg);padding:16px;margin-top:18px}
+.take>span{font-size:26px;line-height:1;color:var(--sig);font-weight:800;flex:0 0 auto}
+.take b{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--sig);font-weight:400}
+.take strong{display:block;margin-top:6px;font-size:17.5px;line-height:1.32;letter-spacing:-.02em}
+.links{display:grid;gap:7px;margin-top:13px}
+.links a{display:flex;align-items:center;gap:12px;border:1px solid var(--hair);background:var(--panel);
+  color:var(--ink);text-decoration:none;padding:14px 13px}
+.links a:active{border-color:var(--sig)}
+.links a b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.01em}
+.links a small{display:block;color:var(--dim2);font-size:13px;margin-top:3px;line-height:1.35}
+.links a>span{margin-left:auto;color:var(--sig)}
+
+/* ---- низ ---- */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:45;background:rgba(11,12,15,.97);
+  backdrop-filter:blur(10px);border-top:1px solid var(--hair);padding-bottom:env(safe-area-inset-bottom)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0}
+.nav .back{background:none;border:0;color:var(--dim2);font-family:var(--ui);font-size:15px;cursor:pointer;padding:14px 6px}
+.nav .back:disabled{opacity:.25}
+.nav .go{background:var(--sig);border:0;color:#0b0c0f;font-family:var(--ui);font-size:16px;
+  font-weight:800;padding:14px 22px;cursor:pointer;border-radius:2px}
+.dots{display:flex;gap:5px}
+.dots i{width:6px;height:6px;background:var(--hair);display:block;border-radius:50%;transition:all .3s var(--e)}
+.dots i.done{background:var(--dim2)}
+.dots i.now{background:var(--sig);width:16px;border-radius:3px}
+footer{border-top:1px solid var(--hair);margin-top:28px;padding:16px 0 6px;
+  display:grid;gap:6px;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim2)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-in">
+      <div class="brand">
+        <span class="dot"></span>
+        <div><small>Из лета в лето</small><b>НЕЙРОШТАБ</b></div>
+      </div>
+      <button class="hostbtn" id="hostBtn">Ведущий</button>
+    </div>
+  </div>
+  <div class="rail"><i id="rail"></i></div>
+  <div class="wrap"><div class="meta" id="meta"></div></div>
+</header>
+
+<div class="wrap">
+  <div class="host" id="hostBox">
+    <div class="hh">
+      <span id="hostStage"></span>
+      <div class="timer"><b id="clock">00:00</b>
+        <button class="tbtn" id="tRun">Пуск</button>
+        <button class="tbtn" id="tReset">Сброс</button></div>
+    </div>
+    <p id="hostNote"></p>
+  </div>
+</div>
+
+<main class="wrap" id="app"></main>
+
+<nav class="nav"><div class="wrap"><div class="nav-in">
+  <button class="back" id="prev">← Назад</button>
+  <div class="dots" id="dots"></div>
+  <button class="go" id="next">Дальше →</button>
+</div></div></nav>
+
+<script>
+/* ================= ДАННЫЕ ================= */
+
+var LEVERS = [
+  {k:"goal", label:"01 · Цель",     hint:"что изменится"},
+  {k:"ctx",  label:"02 · Контекст", hint:"кто, где, чем"},
+  {k:"lim",  label:"03 · Рамки",    hint:"время и запреты"},
+  {k:"fmt",  label:"04 · Формат",   hint:"вид ответа"},
+  {k:"chk",  label:"05 · Проверка", hint:"где искать брак"}
+];
+
+var HEAD = {goal:"# Цель", ctx:"# Контекст", lim:"# Ограничения", fmt:"# Формат результата", chk:"# Самопроверка"};
+
+var WEAK = {
+  goal:"Придумай что-нибудь интересное.",
+  ctx:"Подробности не важны, ты и так понимаешь.",
+  lim:"Чтобы всем понравилось.",
+  fmt:"Напиши подробно.",
+  chk:"Проверь, что всё хорошо."
+};
+
+var MISSIONS = [
+{
+ id:"rain", n:"01", role:"Старший вожатый", title:"Дождь отменил большой квест",
+ alert:"До старта 40 минут. 60 подростков уже собраны.",
+ raw:"Придумай мероприятие в помещении вместо квеста.",
+ generic:["Проведите викторину с интересными вопросами.","Устройте творческий конкурс или шоу талантов.","Завершите программу дискотекой и награждением."],
+ o:{
+  goal:["Заменить уличный квест на что-нибудь в помещении.","За 40 минут собрать замену квесту, которая сохранит командный азарт и не требует репетиций."],
+  ctx:["60 подростков, есть зал и вожатые.","60 подростков 12–16 лет, уже разбиты на 6 команд. Два соседних помещения, 6 вожатых, старт через 40 минут."],
+  lim:["Уложиться в час, без сложной техники.","Само дело — 60 минут, на подготовку есть 40. Без принтера, колонок и интернета. Реквизит — бумага, маркеры, телефоны вожатых. Без заданий на скорость бега."],
+  fmt:["Опиши сценарий по шагам.","Сценарий по минутам + 6 станций + кто из шести вожатых что делает + список реквизита."],
+  chk:["Проверь, что всё реально успеть.","Проверь: команды не толпятся, подготовка влезает в 40 минут, ни одна станция не требует интернета."]},
+ demo:["Шесть команд стартуют с разных станций в двух помещениях.","Станции: немое кино, шифр, башня из бумаги, дубляж, фото-улика, финальный код.","Станция — 7 минут, переход — 1 минута, финал — 10 минут.","Один вожатый держит время, пятеро ведут станции, одну команды проходят сами."]
+},
+{
+ id:"quiet", n:"02", role:"Вожатый", title:"Трое держатся отдельно от отряда",
+ alert:"Третий день смены. Публичное знакомство только усилит сопротивление.",
+ raw:"Как вовлечь тихих детей в отряд?",
+ generic:["Поговорите с ними по душам.","Предложите командные игры на знакомство.","Создайте в отряде дружелюбную атмосферу."],
+ o:{
+  goal:["Включить троих ребят в жизнь отряда.","Мягко включить троих в общее дело, не заставляя рассказывать о себе публично."],
+  ctx:["Отряд 24 человека, третий день смены.","Отряд 24 человека, 13–15 лет, третий день. Трое общаются между собой, но избегают общих активностей."],
+  lim:["Без давления, за одно занятие.","25 минут, один вожатый. Без круга знакомств, без выступлений перед всеми, без деления на «активных» и «тихих»."],
+  fmt:["Опиши одну игру подробно.","Одна механика: подготовка, реплики ведущего, ход по минутам и безопасный выход для того, кто не хочет."],
+  chk:["Проверь, что никого не обидит.","Найди места, где участника могут публично выделить или вынудить говорить. Перепиши их."]},
+ demo:["Дать всему отряду тихую миссию: собрать карту памятных мест смены без подписей авторов.","Работают тройками, каждый берёт роль: фотограф, наблюдатель, редактор.","Результат показывает ведущий анонимно — никого не вытаскивают на сцену.","Дальше предложить, а не назначить, участие в общей карте следующего дня."]
+},
+{
+ id:"parent", n:"03", role:"Руководитель смены", title:"Резкая претензия от родителя",
+ alert:"Ответ нужен быстро. Персональные данные в нейросеть отдавать нельзя.",
+ raw:"Ответь родителю на жалобу про фотографию ребёнка.",
+ generic:["Уважаемый родитель! Благодарим вас за обращение.","Мы обязательно разберёмся в ситуации и примем меры.","Приносим извинения за доставленные неудобства."],
+ o:{
+  goal:["Написать вежливый ответ родителю.","Подготовить спокойный черновик ответа и список того, что нужно проверить до отправки."],
+  ctx:["Родитель недоволен публикацией фотографии.","Родитель возмущён фото ребёнка в закрытой группе. Есть ли согласие и кто публиковал — пока не проверено."],
+  lim:["Коротко и без канцелярита.","Не признавать нарушение до проверки, не выдумывать правила лагеря, не использовать имя ребёнка и детали. Сначала факты."],
+  fmt:["Дай текст ответа.","1) ответ до 700 знаков; 2) пять внутренних шагов; 3) вопросы ответственному за съёмку и публикацию."],
+  chk:["Проверь тон сообщения.","Отметь каждую фразу, которая звучит как юридическое обещание, признание вины или непроверенный факт."]},
+ demo:["Подтвердить получение и на время проверки скрыть публикацию.","Проверить источник фото, настройки доступа, согласие и круг получателей.","Назначить ответственного и назвать реальный срок следующего контакта.","Сверить финальный текст с регламентом — модель его не знает, пока вы его не дали."],
+ srcName:"Сообщение родителя",
+ src:"Сообщение от родителя:\n«Здравствуйте. Почему фотография моего ребёнка оказалась в вашей группе без моего разрешения? Я такого не подписывала. Уберите немедленно, иначе буду обращаться куда следует»."
+},
+{
+ id:"evening", n:"04", role:"Методист", title:"Вечернее дело как сотня других",
+ alert:"Нужен не список конкурсов, а цельная драматургия на час.",
+ raw:"Придумай необычное вечернее мероприятие в лагере.",
+ generic:["Можно провести тематический квест.","Добавьте конкурсы, музыку и творческие номера.","В конце — рефлексия и награждение."],
+ o:{
+  goal:["Сделать интересное вечернее дело.","Собрать вечернее дело, после которого участники узнают друг о друге неожиданные сильные стороны."],
+  ctx:["80 участников, актовый зал, вечер.","80 участников 12–17 лет, 8 отрядов, актовый зал, один ведущий и 8 вожатых. Середина смены."],
+  lim:["Час, без сложной техники.","60 минут. Без выбывания, без оценки внешности и таланта, без сложной техники. В финале нужен один общий результат."],
+  fmt:["Опиши сценарий вечера.","Концепция в одном предложении, 4 акта по минутам, что делает зал, роли восьми вожатых, финальный образ."],
+  chk:["Проверь, что не скучно.","Удали всё, что похоже на обычный концерт или викторину. Проверь, что заняты все 80 человек, а не десять на сцене."]},
+ demo:["Концепция: «Музей невидимых талантов» — экспозиция из маленьких умений участников.","Отряды показывают сильные стороны анонимно, вместо сценических номеров.","Зал собирает из этих умений команды под вымышленные спасательные миссии.","Финал — общая карта навыков смены, которую продолжают дополнять."]
+},
+{
+ id:"media", n:"05", role:"Медиацентр", title:"Нужно пять роликов до вечера",
+ alert:"Три телефона, три человека, один фестивальный день.",
+ raw:"Составь контент-план для видео с фестиваля.",
+ generic:["Снимите яркие моменты и эмоции.","Запишите интервью с организаторами и гостями.","Добавьте динамичную музыку, титры и логотип."],
+ o:{
+  goal:["Снять несколько роликов про фестиваль.","К 20:00 выпустить пять вертикальных роликов, которые вместе рассказывают день и не повторяют друг друга."],
+  ctx:["Три человека с телефонами, монтаж на телефоне.","Три человека, три смартфона, монтаж на телефоне. Фестиваль 10:00–18:00. Главные герои — участники, не организаторы."],
+  lim:["Ролики короткие и вертикальные.","Каждый ролик 20–35 секунд, один синхрон, без постановочных дублей. Учесть согласия на съёмку и слабый интернет."],
+  fmt:["Дай список идей роликов.","Таблица: идея, герой, хук первых двух секунд, шесть кадров, вопрос герою, дедлайн, ответственный."],
+  chk:["Проверь, чтобы не повторялось.","Найди повторы и общие слова. Проверь, что каждый ролик монтируется отдельно и не ждёт остальных."]},
+ demo:["Развести функции: обещание дня, герой в процессе, профессия изнутри, провал и решение, финал.","Операторам назначить не площадки, а героев и время сдачи материала.","Записывать один короткий ответ на один конкретный вопрос.","Четыре ролика собрать локально до 16:00, пятый — после финала."]
+},
+{
+ id:"expert", n:"06", role:"Эксперт", title:"Надо дать полезную обратную связь",
+ alert:"Проект сырой, но ответ «доработать» ничему не учит.",
+ raw:"Напиши обратную связь на проект лагеря.",
+ generic:["Проект интересный и актуальный.","Рекомендуется уточнить цели и задачи.","Желаем успехов в дальнейшей реализации!"],
+ o:{
+  goal:["Дать команде обратную связь по проекту.","Дать обратную связь, после которой команда понимает свой следующий шаг, а не то, что она молодец."],
+  ctx:["Проект экологической акции, пока сырой.","Авторы — вожатые без опыта проектной работы. Заявку читаю первый раз, авторов рядом нет, ответ уйдёт им в чат."],
+  lim:["Уважительно, но по делу.","Не придумывать детали за авторов, не хвалить автоматически, отделять наблюдение от предположения. Тон уважительный."],
+  fmt:["Напиши отзыв.","Что работает; два критических разрыва с объяснением; три вопроса авторам. До 1200 знаков."],
+  chk:["Проверь, что всё понятно.","Для каждого замечания укажи, на какой факт оно опирается. Удали фразы, которые подошли бы любому проекту."]},
+ demo:["Работает: тема понятна, есть действие, которое можно показать.","Разрыв: не названа группа, чьё поведение меняется — без неё нельзя выбрать механику.","Разрыв: объём собранного мусора не доказывает образовательный результат.","Вопросы: кто меняет поведение, как это заметить через неделю, кто продолжит после смены."],
+ srcName:"Заявка команды",
+ src:"Заявка, которую прислали авторы:\n«Экологическая акция „Чистый берег“. Соберём отряды и уберём мусор на берегу озера рядом с лагерем. Проведём в конце смены. Ожидаемый результат — чистый берег и бережное отношение к природе у детей»."
+},
+{
+ id:"brief", n:"07", role:"Организатор", title:"Инструкцию никто не дочитывает",
+ alert:"В тексте две страницы, а команда должна понять действия за минуту.",
+ raw:"Сократи инструкцию для вожатых.",
+ generic:["Уважаемые коллеги, просим ознакомиться.","Необходимо обеспечить своевременное выполнение задач.","По всем вопросам обращайтесь к организаторам."],
+ o:{
+  goal:["Сделать инструкцию короче.","Превратить инструкцию в сообщение, где каждый за минуту видит своё действие, время и точку сбора."],
+  ctx:["Общий чат вожатых перед стартом.","Общий чат 24 вожатых за час до старта. В исходнике три роли, четыре времени, одно исключение про дождь и одна ссылка на маршрут, которого у меня нет."],
+  lim:["Коротко, без воды.","Не менять факты и время, не добавлять обязанностей. Убрать канцелярит. Срочное — в первой строке."],
+  fmt:["Дай сокращённый текст.","Заголовок-действие + по одному пункту «кто / что / когда» на каждую роль + отдельный блок «если…». До 900 знаков."],
+  chk:["Проверь, что смысл не потерян.","Сверь каждую роль, время и место с исходником. Отдельно назови то, чего в исходнике не было."]},
+ demo:["Начинать с действия: «В 14:40 всем отрядным вожатым — у главной сцены».","Каждый пункт строить как «роль → действие → время».","Исключения выносить отдельным блоком, чтобы не потерялись.","Четыре времени человек обязан сверить сам: модель красиво оформит и перепутает цифру."],
+ srcName:"Исходная инструкция",
+ src:"Исходная инструкция, которую надо сократить:\n«Уважаемые коллеги! В связи с проведением фестивальной программы доводим до вашего сведения следующее. Сбор отрядных вожатых осуществляется в 14:40 у главной сцены. Старшим вожатым надлежит прибыть к 14:20 для получения реквизита в штабе. Ответственным за медиасопровождение необходимо обеспечить присутствие на площадке к 14:30. Построение отрядов производится в 15:00 на центральной аллее. В случае осадков построение переносится в актовый зал, о чём будет сообщено дополнительно. Отряды, задействованные в открытии, следуют по маршруту, утверждённому ранее»."
+},
+{
+ id:"proto", n:"08", role:"Руководитель проекта", title:"Есть идея, но нет прототипа",
+ alert:"Команда спорит о названии и цветах раньше, чем проверена механика.",
+ raw:"Помоги придумать приложение для лагеря.",
+ generic:["Создайте приложение с расписанием и новостями.","Добавьте баллы и рейтинг отрядов.","Используйте яркий дизайн и удобную навигацию."],
+ o:{
+  goal:["Придумать полезное приложение для смены.","За день проверить одну механику на восьми живых людях и решить: делать дальше или нет."],
+  ctx:["Участники путаются в расписании.","Участники теряют изменения расписания. Организатор не программист, но может собрать веб-страницу с помощью ИИ."],
+  lim:["Просто и быстро.","На сборку — четыре часа, на проверку — тот же день. Без регистрации, рейтингов, персональных данных и сложного дизайна. Один экран, смартфон."],
+  fmt:["Опиши, что должно быть в приложении.","Гипотеза, сценарий из 4 шагов, структура экрана, текст кнопок, тест из 5 заданий, критерий «делать / не делать»."],
+  chk:["Проверь, что это реализуемо.","Удали функции, без которых гипотезу всё равно можно проверить. Перечисли, что модель додумала за меня."]},
+ demo:["Гипотеза: нужен не полный план, а карточка «что сейчас и куда идти».","Экран: текущее событие, место, время обновления, следующая точка, источник.","Восемь человек за 15 секунд ищут место и время обновления.","Справились 7 из 8 без подсказки — механику развиваем. Дизайн пока не обсуждаем."]
+}
+];
+
+var LEVER_TEXT = [
+ ["01","ЦЕЛЬ","Не «придумай», а что должно измениться в реальности."],
+ ["02","КОНТЕКСТ","Люди, место, момент, ресурсы и то, что уже известно."],
+ ["03","РАМКИ","Время, запреты, техника, безопасность и чего делать нельзя."],
+ ["04","ФОРМАТ","Как должен выглядеть ответ, чтобы им можно было пользоваться."],
+ ["05","ПРОВЕРКА","Где модель обязана искать слабые места и не выдумывать факты."]
+];
+
+var ISSUES = [
+ ["gen","Общие слова вместо конкретных действий"],
+ ["inv","Выдуман факт или ресурс, которого я не давал"],
+ ["safe","Не учтена безопасность или личные данные"],
+ ["time","Не помещается во время и ресурсы"],
+ ["voice","Звучит не по-человечески"]
+];
+
+var SERVICES = [
+ ["Алиса","https://alice.yandex.ru/","аккаунт Яндекса"],
+ ["GigaChat","https://giga.chat/","вход по телефону"],
+ ["DeepSeek","https://chat.deepseek.com/","вход по почте"]
+];
+
+var STAGES = [
+ ["Раздача","3 мин","Раздай номера 1–8 вслух, чтобы не было двух одинаковых. Первая фраза: нейросеть — это быстрый начитанный стажёр без ответственности, она делает ровно то, что поняла. Сразу скажи: у кого нейросети под рукой нет — садитесь в пару к соседу."],
+ ["Сырой запрос","5 мин","Все жмут «Скопировать», уходят в свою нейросеть, возвращаются. Дай на это 3 минуты и не комментируй, пока не вернулись. Потом вопрос в зал и 20 секунд тишины: это ошибка нейросети или нормальный ответ на плохое ТЗ?"],
+ ["Пять рычагов","4 мин","Твой блок, телефоны можно опустить. Главная фраза, проговори её вслух: хороший запрос — не заклинание, а нормальная постановка задачи. Отдельно задержись на шестом блоке про исходник — у номеров 03, 06 и 07 модель в первый раз придумала текст с нуля, они это сейчас увидят."],
+ ["Сборка","7 мин","Пусть жмут варианты и смотрят на шкалу. Скажи: соберите сначала самый слабый, потом самый точный — разницу видно. Потом снова копируют и уходят в ту же нейросеть, в тот же чат."],
+ ["Разбор","6 мин","Теперь у каждого на руках два ответа на одну задачу. Спроси троих вслух, что изменилось. Дальше чек-лист брака и вторая команда «дожать» — её тоже копируют и отправляют."],
+ ["Финал","3 мин","Отдай одну мысль, не пять. Ссылки покажи в конце и не настаивай: у кого-то телеграм не открывается, YouTube работает у всех."]
+];
+
+/* ================= СОСТОЯНИЕ ================= */
+
+var S = {stage:0, mid:"rain", picks:{}, back1:false, back2:false, issues:[], host:false, t:0, run:null, fb1:false, fb2:false, showP:false};
+
+function save(){ try{ localStorage.setItem("neuroshtab", JSON.stringify({stage:S.stage,mid:S.mid,picks:S.picks,back1:S.back1,back2:S.back2,issues:S.issues})); }catch(e){} }
+function load(){
+  try{
+    var d=JSON.parse(localStorage.getItem("neuroshtab")||"null");
+    if(d){ S.stage=d.stage||0; S.mid=d.mid||"rain"; S.picks=d.picks||{}; S.back1=!!d.back1; S.back2=!!d.back2; S.issues=d.issues||[]; }
+  }catch(e){}
+}
+
+function mission(){ for(var i=0;i<MISSIONS.length;i++) if(MISSIONS[i].id===S.mid) return MISSIONS[i]; return MISSIONS[0]; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function pickText(k){ var t=S.picks[k]; if(t===undefined||t===null) return null; return t===0?WEAK[k]:mission().o[k][t-1]; }
+function score(){ var s=0; for(var i=0;i<LEVERS.length;i++){ var t=S.picks[LEVERS[i].k]; if(t) s+=t; } return s; }
+function done(){ var c=0; for(var i=0;i<LEVERS.length;i++){ if(S.picks[LEVERS[i].k]!==undefined) c++; } return c; }
+function verdict(s){
+  if(s<=2) return ["Стажёр угадывает","Ни цели, ни условий. Ответ будет красивый и бесполезный."];
+  if(s<=5) return ["Уже теплее","Часть условий есть, но дыры модель заполнит сама — как захочет."];
+  if(s<=8) return ["Рабочее ТЗ","Получится черновик, который можно править, а не выбрасывать."];
+  return ["Так задачу ставят человеку","Всё, что можно было понять двояко, закрыто. Осталась ваша проверка."];
+}
+function buildPrompt(){
+  var out=[], any=false, m=mission();
+  for(var i=0;i<LEVERS.length;i++){
+    var k=LEVERS[i].k, v=pickText(k);
+    if(v!==null){ out.push(HEAD[k]+"\n"+v); any=true; }
+  }
+  if(!any) return "";
+  if(m.src) out.push("# Исходный текст\n"+m.src);
+  out.push("Если данных не хватает — сначала задай до трёх уточняющих вопросов. Не выдумывай то, чего я не сказал.");
+  return out.join("\n\n");
+}
+function repairPrompt(){
+  var sel=[];
+  for(var i=0;i<ISSUES.length;i++) if(S.issues.indexOf(ISSUES[i][0])>=0) sel.push("- "+ISSUES[i][1].toLowerCase());
+  if(!sel.length) sel.push("- проверь конкретность, реализуемость и непроверенные факты");
+  return "Пересобери свой прошлый ответ. Исправь:\n"+sel.join("\n")+
+   "\n\nСначала назови три главных изменения. Потом дай новую версию в том же формате. Не добавляй фактов, которых не было в моём контексте.";
+}
+
+function svcHtml(){
+  var h="";
+  for(var i=0;i<SERVICES.length;i++)
+    h+='<a href="'+SERVICES[i][1]+'" target="_blank" rel="noreferrer"><small>'+SERVICES[i][2]+'</small><strong>'+SERVICES[i][0]+'</strong></a>';
+  h+='<span class="own" style="display:flex;flex-direction:column;justify-content:center;border:1px dashed var(--hair);padding:13px;min-height:62px"><small style="font-family:var(--mono);font-size:8px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim2)">или</small><strong style="font-size:16px;font-weight:700;color:var(--dim)">своя</strong></span>';
+  return '<div class="svc">'+h+'</div>';
+}
+
+/* ================= ЭКРАНЫ ================= */
+
+function view0(){
+  var rows="";
+  for(var i=0;i<MISSIONS.length;i++){
+    var x=MISSIONS[i];
+    rows+='<button class="mrow'+(x.id===S.mid?" sel":"")+'" data-mid="'+x.id+'">'+
+      '<span class="num">'+x.n+'</span><span class="txt"><small>'+esc(x.role)+'</small>'+
+      '<strong>'+esc(x.title)+'</strong></span><span class="tick">✓</span></button>';
+  }
+  return '<section>'+
+   '<p class="kick">Сигнал принят</p>'+
+   '<h1>Работать будете<br>вы, а не я.<br><span class="sig">Телефон нужен.</span></h1>'+
+   '<p class="lead">Эта страница — пульт. Она даёт вам запрос, вы уносите его в свою нейросеть, возвращаетесь с ответом. Дважды: сначала плохой запрос, потом собранный.</p>'+
+   '<div class="warn"><span>!</span><p>Не вводите имена детей, телефоны, диагнозы, адреса и внутренние документы. Ни сегодня, ни потом.</p></div>'+
+   '<p class="kick" style="margin-top:26px">Возьмите свой номер</p>'+
+   '<div class="mlist">'+rows+'</div>'+
+   '<p class="note">Ведущий называет номера вслух — по одному на человека. Нет нейросети под рукой — садитесь в пару к соседу.</p>'+
+   '</section>';
+}
+
+function view1(){
+  var m=mission(), tail="";
+  if(S.back1){
+    var li=""; for(var i=0;i<m.generic.length;i++) li+="<li>"+esc(m.generic[i])+"</li>";
+    tail='<div class="ask"><span>Вопрос группе</span>'+
+      '<strong>Что нейросеть должна была знать, но вы ей этого не сказали?</strong>'+
+      '<p>Ответ у вас на экране правдоподобный, вежливый и не применимый в понедельник. Это не поломка модели. Это точный ответ на неточный вопрос.</p></div>';
+  } else {
+    tail='<button class="btn" id="back1" style="margin-top:16px">Я вернулся с ответом</button>';
+  }
+  var fb = S.fb1
+    ? (function(){ var l=""; for(var j=0;j<m.generic.length;j++) l+="<li>"+esc(m.generic[j])+"</li>";
+        return '<div class="fallback"><span class="tagline">Заготовка · так отвечает почти любая нейросеть на такой запрос</span><ol>'+l+'</ol><div class="stamp">Формально верно · практически бесполезно</div></div>'; })()
+    : '<button class="linkbtn" id="fb1">Нейросети под рукой нет → показать типичный ответ</button>';
+
+  return '<section>'+
+   '<p class="kick">Миссия '+m.n+' · '+esc(m.role)+'</p>'+
+   '<h1>'+esc(m.title)+'</h1>'+
+   '<p class="lead">'+esc(m.alert)+'</p>'+
+   '<div class="qbox"><div class="qbox-h"><span>Запрос, который обычно пишут</span><span>'+m.raw.length+' зн.</span></div>'+
+   '<div class="qtext">'+esc(m.raw)+'</div>'+
+   '<button class="bigcopy" data-copy="raw">Скопировать запрос</button></div>'+
+   '<div class="steps">'+
+   '<div class="step"><b>1</b><p>Скопировали<small>кнопка выше</small></p></div>'+
+   '<div class="step"><b>2</b><p>Открыли свою нейросеть, вставили, отправили<small>откроется в соседней вкладке — эта страница никуда не денется</small></p></div>'+
+   '<div class="step"><b>3</b><p>Вернулись сюда<small>ответ не закрывайте, он ещё понадобится</small></p></div>'+
+   '</div>'+
+   svcHtml()+
+   tail+
+   fb+
+   '</section>';
+}
+
+function view2(){
+  var c="";
+  for(var i=0;i<LEVER_TEXT.length;i++){
+    var l=LEVER_TEXT[i];
+    c+='<div class="lev"><span>'+l[0]+'</span><div><h3>'+l[1]+'</h3><p>'+esc(l[2])+'</p></div></div>';
+  }
+  return '<section><p class="kick">Протокол управления</p>'+
+   '<h1>Хороший запрос —<br>не заклинание.<br><span class="sig">Это постановка задачи.</span></h1>'+
+   '<p class="lead">Пять рычагов. Работают одинаково в любой нейросети — и в той, что у вас открыта, и в той, что выйдет через год.</p>'+
+   '<div class="levers">'+c+'</div>'+
+   '<div class="lev" style="border-color:var(--sig);background:var(--sig-bg);margin-top:8px">'+
+   '<span>+</span><div><h3>ИСХОДНИК</h3>'+
+   '<p style="color:var(--ink)">Задача про существующий текст — приложите его целиком. Инструкцию, письмо, заявку. Иначе модель напишет его за вас, и очень убедительно: правдоподобные времена, роли и пункты, которых у вас никогда не было.</p></div></div>'+
+   '<div class="punch"><span>Ключевой сдвиг</span><strong>Не просите «хороший ответ». Опишите, по каким признакам вы его примете.</strong></div>'+
+   '</section>';
+}
+
+function view3(){
+  var m=mission(), slots="";
+  var names=["как обычно","точнее","точно"];
+  for(var i=0;i<LEVERS.length;i++){
+    var L=LEVERS[i], k=L.k, cur=S.picks[k];
+    var vs=[WEAK[k], m.o[k][0], m.o[k][1]], opts="";
+    for(var t=0;t<3;t++){
+      opts+='<button class="opt'+(cur===t?" on t"+t:"")+'" data-k="'+k+'" data-t="'+t+'">'+
+        '<span class="tier">'+names[t]+'</span><span>'+esc(vs[t])+'</span></button>';
+    }
+    slots+='<div class="slot"><div class="slot-h"><b>'+L.label+'</b><i>'+L.hint+'</i></div><div class="opts">'+opts+'</div></div>';
+  }
+  var s=score(), v=verdict(s), p=buildPrompt(), full=done()===5;
+  var srcBlock = m.src
+    ? '<div class="slot" style="border-color:var(--sig)"><div class="slot-h"><b>+ · '+esc(m.srcName)+'</b><i>уедет вместе с запросом</i></div>'+
+      '<div style="padding:0 12px 13px"><p style="font-size:14px;line-height:1.45;color:var(--dim)">'+esc(m.src)+'</p>'+
+      '<p class="note" style="margin-top:9px">В первый раз вы этого не давали — и модель придумала текст сама.</p></div></div>'
+    : '';
+  var preview = S.showP && p
+    ? '<div class="qbox" style="border-color:var(--hair)"><div class="qbox-h"><span>Текст запроса</span><span>'+p.length+' зн.</span></div><div class="qtext small">'+esc(p)+'</div></div>'
+    : (p?'<button class="linkbtn" id="showP">Показать текст запроса целиком</button>':'');
+  var copyBtn = p
+    ? '<button class="bigcopy" data-copy="brief" style="margin-top:14px">Скопировать собранный запрос</button>'
+    : '<div class="note" style="margin-top:14px">Выберите хотя бы один вариант — запрос начнёт собираться.</div>';
+  var tail = full
+    ? (S.back2 ? '' : svcHtml()+'<div class="steps" style="margin-top:11px"><div class="step"><b>!</b><p>Отправьте в тот же чат, где лежит первый ответ<small>чтобы разницу было видно на одном экране</small></p></div></div><button class="btn" id="back2" style="margin-top:14px">Я вернулся со вторым ответом</button>')
+    : '<p class="note">Заполните все пять — тогда запрос можно отправлять.</p>';
+
+  return '<section><p class="kick">Сборка · миссия '+m.n+'</p>'+
+   '<h1>Соберите ТЗ<br>под свою реальность</h1>'+
+   '<p class="lead">Пять рычагов, у каждого три варианта. Жмите — запрос собирается сам. Печатать ничего не нужно.</p>'+
+   '<div class="score"><div class="score-h"><b>'+v[0]+'</b><i>'+s+' / 10</i></div>'+
+   '<div class="bar"><i style="width:'+(s*10)+'%"></i></div><p class="note">'+v[1]+'</p></div>'+
+   '<div class="build">'+slots+srcBlock+'</div>'+
+   preview + copyBtn + tail +
+   '</section>';
+}
+
+function view4(){
+  var m=mission(), chk="";
+  for(var j=0;j<ISSUES.length;j++){
+    var on=S.issues.indexOf(ISSUES[j][0])>=0;
+    chk+='<button class="chk'+(on?" on":"")+'" data-iss="'+ISSUES[j][0]+'"><i></i><span>'+esc(ISSUES[j][1])+'</span></button>';
+  }
+  var fb = S.fb2
+    ? (function(){ var l=""; for(var i=0;i<m.demo.length;i++) l+="<li>"+esc(m.demo[i])+"</li>";
+        return '<div class="fallback"><span class="tagline">Заготовка · к чему примерно приходит хороший запрос по этой миссии</span><ol>'+l+'</ol></div>'; })()
+    : '<button class="linkbtn" id="fb2">Не дошло до второго ответа → показать пример</button>';
+
+  return '<section><p class="kick">Разбор · оба ответа у вас на руках</p>'+
+   '<h1>Не оценивайте<br>«нравится».<br><span class="sig">Ищите брак.</span></h1>'+
+   '<p class="lead">Сравните два ответа в своём чате. Сверху — на сырой запрос, снизу — на собранный. Разница и есть весь мастер-класс.</p>'+
+   '<div class="ask"><span>Вопрос группе</span><strong>Что во втором ответе появилось такого, чего в первом не было ни при каких условиях?</strong>'+
+   (m.src?'<p>И отдельно посмотрите первый ответ: модель работала с текстом, которого вы ей не давали. Найдите, что именно она придумала — время, роль, пункт.</p>':'')+'</div>'+
+   '<p class="kick" style="margin-top:26px">Чек-лист редактора</p><h2>Что сломано во втором ответе?</h2>'+
+   '<p class="note">Даже хороший ответ — черновик. Отметьте, что не так — из отметок соберётся команда на правку.</p>'+
+   '<div class="checks">'+chk+'</div>'+
+   '<div class="qbox" style="margin-top:20px"><div class="qbox-h"><span>Вторая команда · дожать</span><span>по вашим отметкам</span></div>'+
+   '<div class="qtext small">'+esc(repairPrompt())+'</div>'+
+   '<button class="bigcopy" data-copy="repair">Скопировать правку</button></div>'+
+   '<p class="note">Отправьте её тем же сообщением в тот же чат. Модель помнит, о чём шла речь.</p>'+
+   fb+
+   '</section>';
+}
+
+function view5(){
+  var cyc=[["01","ЗАДАЧА"],["02","КОНТЕКСТ"],["03","ЧЕРНОВИК"],["04","ПРОВЕРКА"],["05","ПРАВКА"]], c="";
+  for(var i=0;i<cyc.length;i++) c+='<div class="cyc"><span>'+cyc[i][0]+'</span><strong>'+cyc[i][1]+'</strong></div>';
+  return '<section><p class="kick">Цикл замкнут</p>'+
+   '<h1>Первый ответ —<br><span class="sig">это ещё не результат.</span></h1>'+
+   '<p class="lead">Вы только что прошли полный круг: задача → контекст → черновик → проверка → правка. Дальше это работает с любой задачей и любой нейросетью.</p>'+
+   '<div class="cycle">'+c+'</div>'+
+   '<div class="take"><span>!</span><div><b>Заберите одну мысль</b>'+
+   '<strong>Нейросеть не знает вашу работу лучше вас. Но человек, который умеет поставить ей задачу и проверить результат, делает эту работу заметно быстрее.</strong></div></div>'+
+   '<p class="kick" style="margin-top:26px">Мои проекты</p>'+
+   '<div class="links">'+
+   '<a href="https://www.youtube.com/@JKidsBlender" target="_blank" rel="noreferrer"><div><b>YouTube · @JKidsBlender</b><small>3D-моделирование в Blender для подростков</small></div><span>↗</span></a>'+
+   '<a href="https://t.me/jcenterskids" target="_blank" rel="noreferrer"><div><b>Телеграм · JKids</b><small>Разборы и наша движуха</small></div><span>↗</span></a>'+
+   '<a href="https://t.me/jkidspet_bot" target="_blank" rel="noreferrer"><div><b>Бот-тренажёр · @jkidspet_bot</b><small>Ведёт подростка по проектам в Blender, награду подтверждает живой куратор. Собран руками непрограммиста</small></div><span>↗</span></a>'+
+   '</div>'+
+   '<button class="btn" id="reset" style="margin-top:20px">Начать заново с другой миссией</button>'+
+   '</section>';
+}
+
+var VIEWS=[view0,view1,view2,view3,view4,view5];
+
+/* ================= РЕНДЕР ================= */
+
+function render(){
+  document.getElementById("app").innerHTML = VIEWS[S.stage]();
+  document.getElementById("rail").style.width = ((S.stage+1)/STAGES.length*100)+"%";
+  document.getElementById("meta").innerHTML =
+    "<span>Этап <b>"+(S.stage+1)+"</b>/"+STAGES.length+"</span><span><b>"+STAGES[S.stage][0]+"</b></span><span>"+STAGES[S.stage][1]+"</span>";
+  var d=""; for(var i=0;i<STAGES.length;i++) d+='<i class="'+(i===S.stage?"now":(i<S.stage?"done":""))+'"></i>';
+  document.getElementById("dots").innerHTML=d;
+  document.getElementById("prev").disabled = S.stage===0;
+  document.getElementById("next").textContent = S.stage===STAGES.length-1 ? "Сначала ↻" : "Дальше →";
+  document.getElementById("hostStage").textContent = STAGES[S.stage][0]+" · "+STAGES[S.stage][1];
+  document.getElementById("hostNote").textContent = STAGES[S.stage][2];
+  save();
+}
+
+function go(i){
+  S.stage = Math.max(0, Math.min(STAGES.length-1, i));
+  S.showP=false;
+  render();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function copy(text, btn, label){
+  var ok=function(){
+    btn.classList.add("done");
+    btn.textContent="Скопировано ✓ — открывайте нейросеть";
+    setTimeout(function(){ btn.classList.remove("done"); btn.textContent=label; },2600);
+  };
+  var fail=function(){
+    btn.textContent="Не вышло — выделите текст вручную";
+    S.showP=true; setTimeout(render,900);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(ok,function(){ if(legacy(text)) ok(); else fail(); });
+  } else { if(legacy(text)) ok(); else fail(); }
+}
+function legacy(text){
+  try{
+    var a=document.createElement("textarea"); a.value=text;
+    a.style.position="fixed"; a.style.top="0"; a.style.opacity="0";
+    document.body.appendChild(a); a.focus(); a.select();
+    a.setSelectionRange(0, text.length);
+    var r=document.execCommand("copy"); a.remove(); return r;
+  }catch(e){ return false; }
+}
+
+/* ================= СОБЫТИЯ ================= */
+
+document.getElementById("app").addEventListener("click", function(e){
+  var t;
+  if((t=e.target.closest("[data-mid]"))){ S.mid=t.getAttribute("data-mid"); S.picks={}; S.back1=false; S.back2=false; S.fb1=false; S.fb2=false; render(); return; }
+  if((t=e.target.closest("[data-copy]"))){
+    var kind=t.getAttribute("data-copy");
+    if(kind==="raw") copy(mission().raw, t, "Скопировать запрос");
+    if(kind==="brief") copy(buildPrompt(), t, "Скопировать собранный запрос");
+    if(kind==="repair") copy(repairPrompt(), t, "Скопировать правку");
+    return;
+  }
+  if(e.target.closest("#back1")){ S.back1=true; render(); return; }
+  if(e.target.closest("#back2")){ S.back2=true; go(S.stage+1); return; }
+  if(e.target.closest("#fb1")){ S.fb1=true; S.back1=true; render(); return; }
+  if(e.target.closest("#fb2")){ S.fb2=true; render(); return; }
+  if(e.target.closest("#showP")){ S.showP=true; render(); return; }
+  if(e.target.closest("#reset")){ hardReset(); return; }
+  if((t=e.target.closest("[data-k]"))){
+    var k=t.getAttribute("data-k"), v=parseInt(t.getAttribute("data-t"),10);
+    if(S.picks[k]===v) delete S.picks[k]; else S.picks[k]=v;
+    render(); return;
+  }
+  if((t=e.target.closest("[data-iss]"))){
+    var id=t.getAttribute("data-iss"), p=S.issues.indexOf(id);
+    if(p>=0) S.issues.splice(p,1); else S.issues.push(id);
+    render(); return;
+  }
+});
+
+function hardReset(){
+  S.stage=0; S.mid="rain"; S.picks={}; S.back1=false; S.back2=false; S.issues=[]; S.fb1=false; S.fb2=false; S.showP=false;
+  render(); window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.getElementById("next").addEventListener("click", function(){
+  if(S.stage===STAGES.length-1) hardReset(); else go(S.stage+1);
+});
+document.getElementById("prev").addEventListener("click", function(){ go(S.stage-1); });
+
+document.getElementById("hostBtn").addEventListener("click", function(){
+  S.host=!S.host;
+  this.classList.toggle("on",S.host);
+  document.getElementById("hostBox").classList.toggle("show",S.host);
+});
+
+function fmt(s){ var m=Math.floor(s/60), r=s%60; return (m<10?"0":"")+m+":"+(r<10?"0":"")+r; }
+document.getElementById("tRun").addEventListener("click", function(){
+  if(S.run){ clearInterval(S.run); S.run=null; this.textContent="Пуск"; }
+  else { this.textContent="Стоп"; S.run=setInterval(function(){ S.t++; document.getElementById("clock").textContent=fmt(S.t); },1000); }
+});
+document.getElementById("tReset").addEventListener("click", function(){ S.t=0; document.getElementById("clock").textContent="00:00"; });
+
+document.addEventListener("keydown", function(e){
+  if(e.key==="ArrowRight") go(S.stage+1);
+  if(e.key==="ArrowLeft") go(S.stage-1);
+});
+
+load();
+render();
+</script>
+
+<div class="wrap"><footer>
+  <span>Сергей Фенчин · Новосибирск</span>
+  <span>Цель → контекст → рамки → формат → проверка</span>
+</footer></div>
+</body>
+</html>
